@@ -10,3 +10,4 @@ ta
 plotly
 matplotlib
 numpy
+tradingview-ta
