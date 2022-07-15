@@ -1,0 +1,13 @@
+streamlit
+pandas
+requests
+yfinance
+pandas_datareader
+alpaca_trade_api
+quantstats
+mplfinance
+ta
+plotly
+matplotlib
+numpy
+sqlite3
