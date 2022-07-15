@@ -1,9 +1,5 @@
 import streamlit as st
 import pandas as pd
-import requests
-import yfinance as yf
-import pandas_datareader.data as pdr
-from alpaca_trade_api.rest import REST
 import quantstats as qs
 import mplfinance as mpf
 import data_list
@@ -12,9 +8,10 @@ from ta.utils import dropna
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from streamlit.components.v1 import html
-import matplotlib.pyplot as plt
 import numpy as np
 st.set_option('deprecation.showPyplotGlobalUse', False)
+from tradingview_ta import TA_Handler, Interval, Exchange
+from PIL import Image
 
 
 st.title('Crypto Dashboard')
@@ -33,30 +30,24 @@ with c3:
 
 st.markdown('---')
 fred_dict = dict(zip(data_list.fred_list['fred_names'], data_list.fred_list['fred_tickers']))
-fred_selection = st.sidebar.multiselect("Plot as well:", data_list.fred_list['fred_names'])
-# st.write(fred_selection)
 
-st.dataframe(df)
+
+# st.dataframe(df)
+coin_sell = TA_Handler(
+    symbol=f"{crypto_list1[c_choice]}USD",
+    screener="crypto",
+    exchange="COINBASE",
+    interval=Interval.INTERVAL_1_DAY
+)
+ana = coin_sell.get_analysis().summary
+buy_percent = np.floor((ana['BUY'] / (ana['BUY'] + ana['SELL'] + ana['NEUTRAL']))*100)
+st.success(f"Recommendation: {ana['RECOMMENDATION']}")
+st.success(f"{buy_percent}% recommendation to buy")
+
 main_fig = mpf.plot(df, type='line')
 st.pyplot(main_fig)
 
-fig, axs = plt.subplots(len(fred_selection), 1, figsize=(15,15))
-
-
-for i in range(len(fred_selection)):
-    temp = pd.read_parquet(f'./data/FRED/{fred_dict[fred_selection[i]]}.parquet')
-    st.write(df.index[0].date())
-    st.write(np.min(df.index).date())
-    temp = temp[pd.to_datetime(temp.index)>=pd.to_datetime(np.min(df.index))]
-    # st.dataframe(temp)
-    axs[i].plot(temp.index, temp.iloc[:,0])
-    axs[i].set_title(fred_selection[i])
-    axs[i].grid(True)
-
-fig.tight_layout()
-st.pyplot(fig)
-
-
+st.warning("Please use the get_ts.ipynb to get the tear sheets")
 
 if show_data:
     st.markdown('---')
