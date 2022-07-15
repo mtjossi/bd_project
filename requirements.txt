@@ -10,4 +10,4 @@ ta
 plotly
 matplotlib
 numpy
-sqlite3
+sqlite
