@@ -79,4 +79,6 @@ st.write("""
 - An increase in the fed fund rate results in a decrease in BTC price.
 - If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
 - These are all data we have gotten from FRED, so sourcing the data is not a problem.
+
+- might add correlation matrix later...
 """)
