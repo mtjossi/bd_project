@@ -41,6 +41,7 @@ st.plotly_chart(fig)
 st.write("Sample strategy: Buy when price leaves, then re-enters Lower Bollinger Band")
 st.write("Sample strategy: Sell when price leaves, then re-enters Upper Bollinger Band")
 
+
 st.sidebar.write("Parameters for TAs")
 W1 = st.sidebar.slider("short window", 1,10,3)
 W2 = st.sidebar.slider("long window", 1,100,37)
@@ -72,3 +73,10 @@ fig2.update_layout(height=1000, width=1000, title_text="Stacked TAs", xaxis_rang
 fig2.update_xaxes(matches='x')
 st.plotly_chart(fig2)
 
+
+
+st.write("""
+- An increase in the fed fund rate results in a decrease in BTC price.
+- If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
+- These are all data we have gotten from FRED, so sourcing the data is not a problem.
+""")
