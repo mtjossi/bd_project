@@ -15,6 +15,7 @@ from PIL import Image
 
 
 st.title('Crypto Dashboard')
+st.write("More pages on the left / sidebar")
 
 c1, c2, c3 = st.columns([1,1,1])
 crypto_list1 = dict(zip(data_list.crypto_list['name'], data_list.crypto_list['ticker']))
@@ -23,7 +24,7 @@ with c1:
     c_choice = st.selectbox("Main Crypto to Plot", crypto_list1.keys())
     df = pd.read_parquet(f'./data/Alpaca/{crypto_list1[c_choice]}USD.parquet')
 with c2:
-    st.write('   ')
+    st.write('')
 with c3:
     st.markdown('&nbsp;')
     show_data = st.checkbox('Show data table', False)
@@ -47,7 +48,9 @@ st.success(f"{buy_percent}% recommendation to buy")
 main_fig = mpf.plot(df, type='line')
 st.pyplot(main_fig)
 
-st.warning("Please use the get_ts.ipynb to get the tear sheets")
+st.dataframe(df.describe())
+
+st.warning("Please use the get_ts.ipynb in the notebook folder to get the tear sheets")
 
 if show_data:
     st.markdown('---')
