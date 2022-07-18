@@ -42,7 +42,12 @@ coin_sell = TA_Handler(
 )
 ana = coin_sell.get_analysis().summary
 buy_percent = np.floor((ana['BUY'] / (ana['BUY'] + ana['SELL'] + ana['NEUTRAL']))*100)
-st.success(f"Recommendation: {ana['RECOMMENDATION']}")
+if ana['RECOMMENDATION'] == "BUY":
+    st.success(f"Recommendation: {ana['RECOMMENDATION']}")
+elif ana['RECOMMENDATION'] == "NEUTRAL":
+    st.warning(f"Recommendation: {ana['RECOMMENDATION']}")
+else:
+    st.error(f"Recommendation: {ana['RECOMMENDATION']}")
 st.success(f"{buy_percent}% recommendation to buy")
 
 main_fig = mpf.plot(df, type='line')
