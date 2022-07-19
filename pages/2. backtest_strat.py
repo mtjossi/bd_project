@@ -129,7 +129,7 @@ btc2 = btc2.set_index('date')
 plt.plot(btc2.index, btc2['BTC']/max(btc2['BTC']), label='BTC scaled price')
 daily_stuff = ["DFII10", "T10YIE"]
 for d in daily_stuff:
-    temp = pd.read_parquet(f'./data2/FRED/{d}.parquet')
+    temp = pd.read_parquet(f'./data/FRED/{d}.parquet')
     plt.plot(temp.index, temp[d], label=d)
     
 plt.legend(loc=0)
@@ -150,7 +150,7 @@ btc.index = btc.index - pd.offsets.BMonthBegin(1)
 macro_list = ["UNRATE", "FEDFUNDS", "PAYEMS", "CPIAUCSL"]
 comb_df = pd.DataFrame()
 for m in macro_list:
-    temp = pd.read_parquet(f'./data2/FRED/{m}.parquet')
+    temp = pd.read_parquet(f'./data/FRED/{m}.parquet')
     comb_df = pd.concat([comb_df, temp], axis='columns')
 
 tt = comb_df.copy()
