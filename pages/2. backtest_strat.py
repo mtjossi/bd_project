@@ -3,6 +3,7 @@ import ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
+import data_list
 
 st.title('TA Strategies')
 
@@ -82,7 +83,41 @@ st.write("""
 - These are all data we have gotten from FRED, so sourcing the data is not a problem.
 """)
 
+st.write("- - - -")
+st.subheader("Simple Momentum Strategy based on 1 crypto")
+conn = sqlite3.connect('./test.db')
 
+st.write("")
+c1, c2, c3 = st.columns([1,1,1])
+crypto_list1 = dict(zip(data_list.crypto_list['name'], data_list.crypto_list['ticker']))
+
+with c1:
+    c_choice = st.selectbox("Main Crypto to Plot", crypto_list1.keys())
+    df = pd.read_sql(sql=f"select * from crypto_prices where ticker='{crypto_list1[c_choice]}USD'", con=conn)
+with c2:
+    window_slider = st.slider("Window to look back on momentum strategy", 1, 300, 5)
+with c3:
+    st.markdown('&nbsp;')
+    show_data = st.checkbox('Show data table', False)
+
+def strategy(data, window=1, coin_name='BTC'):
+    dc = data.copy()
+    dc['date'] = pd.to_datetime(dc['date'])
+    dc['ret'] = np.log(dc['close'].pct_change()+1)
+    dc['prior_n'] = dc['ret'].rolling(window).sum()
+    dc.dropna(inplace=True)
+    dc['position'] = [1 if i > 0 else -1 for i in dc['prior_n']]
+    dc['strat'] = dc['position'].shift(1) * dc['ret']
+    strat_fig = plt.plot(figsize=(18,6))
+    plt.plot(dc['date'], dc['ret'].cumsum(), label='buy&hold')
+    plt.plot(dc['date'], dc['strat'].cumsum(), label='simple momentum strategy')
+    plt.ylabel("log returns")
+    plt.title(f"{coin_name} Strategy Returns")
+    plt.legend(loc=0)
+    return strat_fig
+
+mom_plot = strategy(df, window_slider, crypto_list1[c_choice])
+st.pyplot(mom_plot)
 
 st.write("- - - -")
 fig22 = plt.figure()
@@ -94,7 +129,7 @@ btc2 = btc2.set_index('date')
 plt.plot(btc2.index, btc2['BTC']/max(btc2['BTC']), label='BTC scaled price')
 daily_stuff = ["DFII10", "T10YIE"]
 for d in daily_stuff:
-    temp = pd.read_parquet(f'./data/FRED/{d}.parquet')
+    temp = pd.read_parquet(f'./data2/FRED/{d}.parquet')
     plt.plot(temp.index, temp[d], label=d)
     
 plt.legend(loc=0)
@@ -115,7 +150,7 @@ btc.index = btc.index - pd.offsets.BMonthBegin(1)
 macro_list = ["UNRATE", "FEDFUNDS", "PAYEMS", "CPIAUCSL"]
 comb_df = pd.DataFrame()
 for m in macro_list:
-    temp = pd.read_parquet(f'./data/FRED/{m}.parquet')
+    temp = pd.read_parquet(f'./data2/FRED/{m}.parquet')
     comb_df = pd.concat([comb_df, temp], axis='columns')
 
 tt = comb_df.copy()
