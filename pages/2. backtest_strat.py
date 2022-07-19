@@ -2,6 +2,7 @@ import  streamlit as st
 import ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
 
 st.title('TA Strategies')
 
@@ -79,6 +80,63 @@ st.write("""
 - An increase in the fed fund rate results in a decrease in BTC price.
 - If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
 - These are all data we have gotten from FRED, so sourcing the data is not a problem.
+""")
 
-- might add correlation matrix later...
+
+
+st.write("- - - -")
+fig22 = plt.figure()
+btc2 = pd.read_sql(sql="select date, close from crypto_prices where ticker='BTCUSD'", con=conn)
+btc2.columns = ['date', 'BTC']
+btc2['date'] = pd.to_datetime(btc2['date'])
+btc2 = btc2.set_index('date')
+
+plt.plot(btc2.index, btc2['BTC']/max(btc2['BTC']), label='BTC scaled price')
+daily_stuff = ["DFII10", "T10YIE"]
+for d in daily_stuff:
+    temp = pd.read_parquet(f'./data/FRED/{d}.parquet')
+    plt.plot(temp.index, temp[d], label=d)
+    
+plt.legend(loc=0)
+st.pyplot(fig22)
+
+
+
+st.write("- - - -")
+st.subheader("BTC correlation")
+
+btc = pd.read_sql(sql="select date, close from crypto_prices where ticker='BTCUSD'", con=conn)
+btc.columns = ['date', 'BTC']
+btc['date'] = pd.to_datetime(btc['date'])
+btc = btc.set_index('date')
+btc = btc.pct_change().resample('M').agg(lambda x: (x+1).prod() - 1)
+btc.index = btc.index - pd.offsets.BMonthBegin(1)
+
+macro_list = ["UNRATE", "FEDFUNDS", "PAYEMS", "CPIAUCSL"]
+comb_df = pd.DataFrame()
+for m in macro_list:
+    temp = pd.read_parquet(f'./data/FRED/{m}.parquet')
+    comb_df = pd.concat([comb_df, temp], axis='columns')
+
+tt = comb_df.copy()
+tt = comb_df.pct_change()
+tt.dropna()
+
+super_comb = pd.concat([btc, tt], axis='columns')
+all_corr = super_comb.corr()
+
+st.write("correlating BTC change rate with macro variables")
+st.dataframe(all_corr)
+
+st.write("""While they are not the main driving factors, an increase in fed fund rates does seem to result in a decrease in BTC prices.
+The blue and green lines in the below plotconfirm this.""")
+
+figx= plt.figure() 
+plt.plot(btc.index, btc.BTC, label='BTC change rate')
+plt.plot(super_comb.index, super_comb['UNRATE'], label='unemployment rate')
+plt.plot(super_comb.index, super_comb['FEDFUNDS'], label='federal interest rate')
+plt.legend(loc=0)
+st.pyplot(figx)
+st.write("""
+Quick note: BTC change rate is scaled by 100 --> -0.5 = -50%, while others are not
 """)
