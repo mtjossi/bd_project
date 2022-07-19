@@ -77,11 +77,7 @@ st.plotly_chart(fig2)
 
 
 
-st.write("""
-- An increase in the fed fund rate results in a decrease in BTC price.
-- If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
-- These are all data we have gotten from FRED, so sourcing the data is not a problem.
-""")
+
 
 st.write("- - - -")
 st.subheader("Simple Momentum Strategy based on 1 crypto")
@@ -120,6 +116,14 @@ mom_plot = strategy(df, window_slider, crypto_list1[c_choice])
 st.pyplot(mom_plot)
 
 st.write("- - - -")
+
+st.write("""
+- An increase in the fed fund rate results in a decrease in BTC price.
+- If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
+- These are all data we have gotten from FRED, so sourcing the data is not a problem.
+""")
+
+
 fig22 = plt.figure()
 btc2 = pd.read_sql(sql="select date, close from crypto_prices where ticker='BTCUSD'", con=conn)
 btc2.columns = ['date', 'BTC']
