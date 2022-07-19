@@ -19,7 +19,7 @@ df = pd.read_sql(sql="select date, open, high, low, close, volume from crypto_pr
 df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
 # df['date'] = df['date'].apply(lambda x: x.date())
 
-WINDOW = st.slider("Enter a window: ", 1, 300, 30)
+WINDOW = st.slider("Enter a window: ", 1, 300, 30, key=455)
 df['bb_h'] = ta.volatility.BollingerBands(close=df['close'], window=WINDOW, fillna=True).bollinger_hband()
 df['bb_m'] = ta.volatility.BollingerBands(close=df['close'], window=WINDOW, fillna=True).bollinger_mavg()
 df['bb_l'] = ta.volatility.BollingerBands(close=df['close'], window=WINDOW, fillna=True).bollinger_lband()
@@ -77,7 +77,11 @@ st.plotly_chart(fig2)
 
 
 
-
+st.write("""
+- An increase in the fed fund rate results in a decrease in BTC price.
+- If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
+- These are all data we have gotten from FRED, so sourcing the data is not a problem.
+""")
 
 st.write("- - - -")
 st.subheader("Simple Momentum Strategy based on 1 crypto")
@@ -91,7 +95,7 @@ with c1:
     c_choice = st.selectbox("Main Crypto to Plot", crypto_list1.keys())
     df = pd.read_sql(sql=f"select * from crypto_prices where ticker='{crypto_list1[c_choice]}USD'", con=conn)
 with c2:
-    window_slider = st.slider("Window to look back on momentum strategy", 1, 300, 5)
+    window_slider = st.slider("Window to look back on momentum strategy", 1, 300, 5, key=111)
 with c3:
     st.markdown('&nbsp;')
     show_data = st.checkbox('Show data table', False)
@@ -116,14 +120,41 @@ mom_plot = strategy(df, window_slider, crypto_list1[c_choice])
 st.pyplot(mom_plot)
 
 st.write("- - - -")
+st.subheader("Simple Momentum Strategy based on 1 crypto ETF")
 
-st.write("""
-- An increase in the fed fund rate results in a decrease in BTC price.
-- If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
-- These are all data we have gotten from FRED, so sourcing the data is not a problem.
-""")
+st.write("")
+c1, c2, c3 = st.columns([1,1,1])
+etf_list1 = dict(zip(data_list.etf_list['name'], data_list.etf_list['ticker']))
 
+with c1:
+    e_choice = st.selectbox("Main Crypto to Plot", etf_list1.keys())
+    df = pd.read_sql(sql=f"select * from etf_prices where ticker='{etf_list1[e_choice]}'", con=conn)
+with c2:
+    window_slider2 = st.slider("Window to look back on momentum strategy", 1, 30, 5, key=123)
+with c3:
+    st.markdown('&nbsp;')
+    show_data = st.checkbox('Show data table', False, key=876)
 
+def strategy2(data, window=1, coin_name='BTC'):
+    dc = data.copy()
+    dc['date'] = pd.to_datetime(dc['date'])
+    dc['ret'] = np.log(dc['close'].pct_change()+1)
+    dc['prior_n'] = dc['ret'].rolling(window).sum()
+    dc.dropna(inplace=True)
+    dc['position'] = [1 if i > 0 else -1 for i in dc['prior_n']]
+    dc['strat'] = dc['position'].shift(1) * dc['ret']
+    strat_fig = plt.plot(figsize=(18,6))
+    plt.plot(dc['date'], dc['ret'].cumsum(), label='buy&hold')
+    plt.plot(dc['date'], dc['strat'].cumsum(), label='simple momentum strategy')
+    plt.ylabel("log returns")
+    plt.title(f"{coin_name} Strategy Returns")
+    plt.legend(loc=0)
+    return strat_fig
+
+mom_plot = strategy2(df, window_slider2, etf_list1[e_choice])
+st.pyplot(mom_plot)
+
+st.write("- - - -")
 fig22 = plt.figure()
 btc2 = pd.read_sql(sql="select date, close from crypto_prices where ticker='BTCUSD'", con=conn)
 btc2.columns = ['date', 'BTC']
