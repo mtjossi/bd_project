@@ -27,7 +27,7 @@ st.error("""
 st.subheader("Backend explanation")
 st.warning("""
 - Data is retrieved using SQL (unless from parquet files)
-- pandas.read_sql() ... conencting to the sqlite file. This is the main reason for using sqlite inteadof clickhouse (for this part)
+- pandas.read_sql() ... connecting to the sqlite file. This is the main reason for using sqlite intead of clickhouse (for this part)
 
 
 https://connecthkuhk-my.sharepoint.com/:w:/g/personal/watanabe_connect_hku_hk/EWgWp4ftCNRKoG_AwQ06o8QBonXrgUL_TWkl_VpxBGfVVA?e=HgGYST << for up to date report
