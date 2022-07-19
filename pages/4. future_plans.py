@@ -1,6 +1,6 @@
 import  streamlit as st
 
-st.title('Future Plans')
+st.title('Future Plans / Explanations')
 
 st.success("""
 We plan to continue with this project.
@@ -21,6 +21,14 @@ st.error("""
 - get_ts: gets a tear sheet for each cryptocurrency. Replace 'BTC-USD' with 'ETH-USD' for example, to get tear sheets for other cryptos. the ticker code is the ones used by yahoo finance.
 - get_tv: gets the current sentiment of a crypto from tradingview.
 - make_plots: to create plotly graphs. They are interactive.
+""")
 
 
+st.subheader("Backend explanation")
+st.warning("""
+- Data is retrieved using SQL (unless from parquet files)
+- pandas.read_sql() ... conencting to the sqlite file. This is the main reason for using sqlite inteadof clickhouse (for this part)
+
+
+https://connecthkuhk-my.sharepoint.com/:w:/g/personal/watanabe_connect_hku_hk/EWgWp4ftCNRKoG_AwQ06o8QBonXrgUL_TWkl_VpxBGfVVA?e=HgGYST << for up to date report
 """)
