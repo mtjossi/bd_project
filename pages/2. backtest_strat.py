@@ -84,7 +84,7 @@ st.write("""
 """)
 
 st.write("- - - -")
-st.subheader("Simple Momentum Strategy based on 1 crypto")
+st.subheader("Simple Momentum Strategy based on 1 cryptocurrency")
 conn = sqlite3.connect('./test.db')
 
 st.write("")
@@ -98,7 +98,6 @@ with c2:
     window_slider = st.slider("Window to look back on momentum strategy", 1, 300, 5, key=111)
 with c3:
     st.markdown('&nbsp;')
-    show_data = st.checkbox('Show data table', False)
 
 def strategy(data, window=1, coin_name='BTC'):
     dc = data.copy()
@@ -133,7 +132,6 @@ with c2:
     window_slider2 = st.slider("Window to look back on momentum strategy", 1, 30, 5, key=123)
 with c3:
     st.markdown('&nbsp;')
-    show_data = st.checkbox('Show data table', False, key=876)
 
 def strategy2(data, window=1, coin_name='BTC'):
     dc = data.copy()
