@@ -24,6 +24,33 @@ df['bb_h'] = ta.volatility.BollingerBands(close=df['close'], window=WINDOW, fill
 df['bb_m'] = ta.volatility.BollingerBands(close=df['close'], window=WINDOW, fillna=True).bollinger_mavg()
 df['bb_l'] = ta.volatility.BollingerBands(close=df['close'], window=WINDOW, fillna=True).bollinger_lband()
 
+df['buy/sell'] = 0
+def get_signals(data):
+    bought = False
+    buy_sig, sell_sig = [], []
+    
+    for i in range(data.shape[0]-1):
+        if (data['close'][i] < data['bb_l'][i]) & (data['close'][i+1] > data['bb_l'][i+1]) & (bought == False):
+            buy_sig.append(data['close'][i+1])
+            sell_sig.append(np.nan)
+            data['buy/sell'][i+1] = 1
+            bought = True
+        elif (data['close'][i] > data['bb_h'][i]) & (data['close'][i+1] < data['bb_h'][i+1]) & (bought == True):
+            buy_sig.append(np.nan)
+            sell_sig.append(data['close'][i+1])
+            data['buy/sell'][i+1] = -1
+            bought = False
+        else:
+            buy_sig.append(np.nan)
+            sell_sig.append(np.nan)
+    buy_sig.append(np.nan)
+    sell_sig.append(np.nan)       
+    return buy_sig, sell_sig
+
+bs, ss = get_signals(df)
+
+
+
 
 fig = make_subplots(specs=[[{"secondary_y": True}]])
 fig.add_traces(go.Candlestick(x=df['date'],
@@ -38,6 +65,12 @@ fig.add_traces(go.Scatter(x=df['date'], y=df['bb_l'], name='bb_low',
                           line = {'dash': 'dash'},
                          fill = 'tonexty',
                          opacity = 0.5))
+fig.add_traces(go.Scatter(x=df['date'], y=bs, name='buy',
+                         opacity = 1, marker={'size':10, 'color':'green'}, mode='markers', marker_symbol='triangle-up'))
+
+fig.add_traces(go.Scatter(x=df['date'], y=ss, name='sell',
+                         opacity = 1, marker={'size':10, 'color':'red'}, mode='markers', marker_symbol='triangle-down'))
+
 fig.update_layout(height=500, width=1000, title_text="Bollinger Bands", xaxis_rangeslider_visible=True)
 st.plotly_chart(fig)
 st.write("Sample strategy: Buy when price leaves, then re-enters Lower Bollinger Band")
@@ -78,6 +111,10 @@ st.plotly_chart(fig2)
 
 
 st.write("""
+Sample strategy:
+- if RSI above 0.7 --> over-bought --> sell
+- if RSI below 0.3 --> over-sold --> buy
+
 - An increase in the fed fund rate results in a decrease in BTC price.
 - If the change in fed fund rate can be predicted (using other macro variables such as GDP, 10-year bond yields, non-farm payrolls, etc.), maybe the change in BTC prices can also be predicted.
 - These are all data we have gotten from FRED, so sourcing the data is not a problem.
